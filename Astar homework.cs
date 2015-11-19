@@ -190,23 +190,44 @@ class Program
 
     private static List<Node> checkConnections(Node currentNode, Node endNode, List<Node> openNodes, List<Node> closedNodes) {
 
+        int greaterThanCounter = 0;
         float deltaX = currentNode.x - endNode.x;
         float deltaY = currentNode.y - endNode.y;
         currentNode.heuristic = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         currentNode.estimatedTotalCost = currentNode.heuristic + currentNode.costSoFar;
         closedNodes.Add(currentNode);
 
+        if(closedNodes.Contains(endNode)){
+            foreach( Node item in openNodes){
+                if(endNode.costSoFar > item.estimatedTotalCost){
+                    greaterThanCounter++;
+                }
+            }
+            if (greaterThanCounter == 0) {
+                walkBackPath();
+            }
+        }
+
         if (currentNode.connection1 != null) {
-            if (closedNodes.Contains(currentNode.connection1)) {
+            if (closedNodes.Contains(currentNode.connection1))
+            {
                 deltaX = currentNode.x - currentNode.connection1.x;
                 deltaY = currentNode.y = currentNode.connection1.y;
-                if((currentNode.costSoFar + (deltaX*deltaX + deltaY * deltaY) < currentNode.connection1.costSoFar){
-                    currentNode.connection1.costSoFar = currentNode.costSoFar + (deltaX*deltaX + deltaY * deltaY);
+                if ((currentNode.costSoFar + (deltaX * deltaX + deltaY * deltaY) < currentNode.connection1.costSoFar))
+                {
+                    currentNode.connection1.costSoFar = currentNode.costSoFar + (deltaX * deltaX + deltaY * deltaY);
                     openNodes.Add(currentNode.connection1);
                     closedNodes.Remove(currentNode.connection1);
                 }
             }
+            else { 
+                
+            }
         }
+    }
+
+    private static void walkBackPath(Node workingNode) {
+        throw new NotImplementedException();
     }
 
     private static void checkIfAllowed(string input)
