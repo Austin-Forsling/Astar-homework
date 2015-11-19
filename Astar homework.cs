@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Node {
+public class Node
+{
 
     public int x { get; set; }
     public int y { get; set; }
@@ -27,7 +28,8 @@ public class Node {
     public float estimatedTotalCost = 0;
     public Node cameFrom = null;
 
-    public void GetConnections(Node one = null, Node two = null, Node three = null, Node four = null, Node five= null, Node six = null){
+    public void GetConnections(Node one = null, Node two = null, Node three = null, Node four = null, Node five = null, Node six = null)
+    {
         this.connection1 = one;
         this.connection2 = two;
         this.connection3 = three;
@@ -40,14 +42,17 @@ public class Node {
 
 
 
-class Program {
-    static void Main() {
+class Program
+{
+    static void Main()
+    {
         RunNodeMap();
-        
+
     }
 
-    public static void RunNodeMap() {
-        
+    public static void RunNodeMap()
+    {
+
         string startPos, endPos;
 
         Console.WriteLine("Please type the name of the starting position. (letter between A and P)");
@@ -58,18 +63,21 @@ class Program {
         endPos = Console.ReadLine();
         checkIfAllowed(endPos);
 
-        if (startPos == endPos) {
+        if (startPos == endPos)
+        {
             Console.WriteLine("The shortest path is: ");
             Console.WriteLine(startPos);
         }
 
-        else {
+        else
+        {
             findShortestPath(startPos, endPos);
         }
-        
+
     }
 
-    public static void findShortestPath(string startPos, string endPos) {
+    public static void findShortestPath(string startPos, string endPos)
+    {
         Node A = new Node(-19, 11);
         Node B = new Node(-13, 13);
         Node C = new Node(4, 14);
@@ -176,25 +184,36 @@ class Program {
         List<Node> openNodes = new List<Node>();
         List<Node> closedNodes = new List<Node>();
 
-        float deltaX = startNode.x - endNode.x;
-        float deltaY = startNode.y - endNode.y;
-
-        startNode.heuristic = (float) Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-        startNode.estimatedTotalCost = startNode.heuristic;
-        openNodes.Add(startNode);
 
         closedNodes = checkConnections(startNode, endNode, openNodes, closedNodes);
     }
 
-    private static List<Node> checkConnections(Node currentNode, Node endNode, List<Node> openNodes, List<Node> closedNodes)
-    {
-        Console.WriteLine(currentNode.connection1);
-        return closedNodes;
+    private static List<Node> checkConnections(Node currentNode, Node endNode, List<Node> openNodes, List<Node> closedNodes) {
+
+        float deltaX = currentNode.x - endNode.x;
+        float deltaY = currentNode.y - endNode.y;
+        currentNode.heuristic = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+        currentNode.estimatedTotalCost = currentNode.heuristic + currentNode.costSoFar;
+        closedNodes.Add(currentNode);
+
+        if (currentNode.connection1 != null) {
+            if (closedNodes.Contains(currentNode.connection1)) {
+                deltaX = currentNode.x - currentNode.connection1.x;
+                deltaY = currentNode.y = currentNode.connection1.y;
+                if((currentNode.costSoFar + (deltaX*deltaX + deltaY * deltaY) < currentNode.connection1.costSoFar){
+                    currentNode.connection1.costSoFar = currentNode.costSoFar + (deltaX*deltaX + deltaY * deltaY);
+                    openNodes.Add(currentNode.connection1);
+                    closedNodes.Remove(currentNode.connection1);
+                }
+            }
+        }
     }
 
-    private static void checkIfAllowed(string input){
+    private static void checkIfAllowed(string input)
+    {
         int isAllowed = input.CompareTo("p");
-        if (isAllowed == 1) {
+        if (isAllowed == 1)
+        {
             throw new Exception("The start or end node does not exist.");
         }
     }
