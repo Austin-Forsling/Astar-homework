@@ -1,4 +1,4 @@
-﻿using System;
+﻿usiusing System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public class Node
 {
-
+    public string name { get; set; }
     public int x { get; set; }
     public int y { get; set; }
 
@@ -16,26 +16,25 @@ public class Node
         this.y = yIn;
     }
 
-    public Node connection1 = null;
-    public Node connection2 = null;
-    public Node connection3 = null;
-    public Node connection4 = null;
-    public Node connection5 = null;
-    public Node connection6 = null;
+    public List<Node> connections = new List<Node>();
+    //public Node connection1 = null;
+    //public Node connection2 = null;
+    //public Node connection3 = null;
+    //public Node connection4 = null;
+    //public Node connection5 = null;
+    //public Node connection6 = null;
 
     public float costSoFar = 0;
     public float heuristic = 0;
     public float estimatedTotalCost = 0;
     public Node cameFrom = null;
 
-    public void GetConnections(Node one = null, Node two = null, Node three = null, Node four = null, Node five = null, Node six = null)
+    public void GetConnections(params Node[] node)
     {
-        this.connection1 = one;
-        this.connection2 = two;
-        this.connection3 = three;
-        this.connection4 = four;
-        this.connection5 = five;
-        this.connection6 = six;
+        for(int i = 0; i < node.Length; i++){
+            connections.Add(node[i]);
+        }
+
     }
 }
 
@@ -78,22 +77,22 @@ class Program
 
     public static void findShortestPath(string startPos, string endPos)
     {
-        Node A = new Node(-19, 11);
-        Node B = new Node(-13, 13);
-        Node C = new Node(4, 14);
-        Node D = new Node(-4, 12);
-        Node E = new Node(-8, 3);
-        Node F = new Node(-18, 1);
-        Node G = new Node(-12, -8);
-        Node H = new Node(12, -9);
-        Node I = new Node(-18, -11);
-        Node J = new Node(-4, -11);
-        Node K = new Node(-12, -14);
-        Node L = new Node(2, -18);
-        Node M = new Node(18, -13);
-        Node N = new Node(4, -9);
-        Node O = new Node(22, 11);
-        Node P = new Node(18, 3);
+        Node A = new Node(-19, 11) { name = "A" };
+        Node B = new Node(-13, 13) { name = "B" };
+        Node C = new Node(4, 14) { name = "C" };
+        Node D = new Node(-4, 12) { name = "D" };
+        Node E = new Node(-8, 3) { name = "E" };
+        Node F = new Node(-18, 1) { name = "F" };
+        Node G = new Node(-12, -8) { name = "G" };
+        Node H = new Node(12, -9) { name = "H" };
+        Node I = new Node(-18, -11) { name = "I" };
+        Node J = new Node(-4, -11) { name = "J" };
+        Node K = new Node(-12, -14) { name = "K" };
+        Node L = new Node(2, -18) { name = "L" };
+        Node M = new Node(18, -13) { name = "M" };
+        Node N = new Node(4, -9) { name = "N" };
+        Node O = new Node(22, 11) { name = "O" };
+        Node P = new Node(18, 3) { name = "P" };
 
         A.GetConnections(B, E);
         B.GetConnections(A, D);
@@ -184,50 +183,47 @@ class Program
         List<Node> openNodes = new List<Node>();
         List<Node> closedNodes = new List<Node>();
 
-
-        closedNodes = checkConnections(startNode, endNode, openNodes, closedNodes);
+        
+        float deltaX = endNode.x - startNode.x;
+        float deltaY = endNode.y - startNode.y;
+        startNode.heuristic = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+        startNode.estimatedTotalCost = startNode.heuristic + startNode.costSoFar;
+        processNode(workingNode, endNode, openNodes, closedNodes);
     }
 
-    private static List<Node> checkConnections(Node currentNode, Node endNode, List<Node> openNodes, List<Node> closedNodes) {
-
-        int greaterThanCounter = 0;
-        float deltaX = currentNode.x - endNode.x;
-        float deltaY = currentNode.y - endNode.y;
-        currentNode.heuristic = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-        currentNode.estimatedTotalCost = currentNode.heuristic + currentNode.costSoFar;
-        closedNodes.Add(currentNode);
-
-        if(closedNodes.Contains(endNode)){
-            foreach( Node item in openNodes){
-                if(endNode.costSoFar > item.estimatedTotalCost){
-                    greaterThanCounter++;
-                }
+    private static void processNode(Node workingNode, Node endNode, List<Node> openNodes, List<Node> closedNodes)
+    {
+        foreach (Node node in workingNode.connections) { 
+            float deltaX = workingNode.x - node.x;
+            float deltaY = workingNode.y - node.y;
+            node.costSoFar = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            deltaX = node.x - endNode.x;
+            deltaY = node.y - endNode.y;
+            node.heuristic = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            if (openNodes.Contains(node)) { 
+            
             }
-            if (greaterThanCounter == 0) {
-                walkBackPath();
-            }
+            node.estimatedTotalCost = node.costSoFar + node.heuristic;
+            node.cameFrom = workingNode;
+            openNodes.Add(node);
         }
-
-        if (currentNode.connection1 != null) {
-            if (closedNodes.Contains(currentNode.connection1))
-            {
-                deltaX = currentNode.x - currentNode.connection1.x;
-                deltaY = currentNode.y = currentNode.connection1.y;
-                if ((currentNode.costSoFar + (deltaX * deltaX + deltaY * deltaY) < currentNode.connection1.costSoFar))
-                {
-                    currentNode.connection1.costSoFar = currentNode.costSoFar + (deltaX * deltaX + deltaY * deltaY);
-                    openNodes.Add(currentNode.connection1);
-                    closedNodes.Remove(currentNode.connection1);
-                }
-            }
-            else { 
-                
-            }
-        }
+        closedNodes.Add(workingNode);
     }
 
-    private static void walkBackPath(Node workingNode) {
-        throw new NotImplementedException();
+    private static void checkConnections()
+    {
+        ;
+    }
+
+    private static void walkBackPath(Node workingNode)
+    {
+        Node currentNode = workingNode;
+        Console.WriteLine("The shortest path is:");
+        Console.Write("Starting at " + currentNode.name);
+        while (currentNode.cameFrom != null) {          
+            Console.Write(currentNode.cameFrom.name + " ");
+            currentNode = currentNode.cameFrom;
+        }
     }
 
     private static void checkIfAllowed(string input)
@@ -239,4 +235,3 @@ class Program
         }
     }
 }
-
